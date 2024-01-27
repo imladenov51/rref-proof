@@ -1,0 +1,116 @@
+\documentclass{article}
+\usepackage{amsmath}
+\begin{document}
+
+\begin{center}
+\LARGE{\bf{Proof of the Maximum Number of FLOPS to Row-Reduce a Matrix}}
+\author{Ivan Mladenov}
+\end{center}
+I once came across a Numerical Note in a textbook called {\it{Elementary Linear Algebra}}, which made an interesting comment on the row reduction algorithm. Here's what it looked like:
+\newline
+\newline
+\begin{tabular}{|p{11cm}}
+In general, the forward phase of row reduction takes much longer than the backward phase. An algorithm for solving a system is usually measured in flops (or floating point operations). A {\bf{flop}} is one arithmetic operation ($+,-,*,/$) on two real floating point numbers. For an $n\times (n+1)$ matrix, the reduction to echelon form can take $2n^3/3+n^2/2-7n/6$ flops (which is approximately $2n^3/3$ flops when $n$ is moderately large---say, $n\ge 30$). In contrast, further reduction to reduced echelon form needs at most $n^2$ flops.
+\end{tabular}
+\newline
+\newline
+\newline
+The textbook provided no further commentary and no proof to this statement, so I set out to do it myself and, eventually, turn it into the document you are now reading with \LaTeX! 
+\newline
+\newline
+{\Large{\bf{Row Echelon Form}}}
+\newline
+\newline
+Let's say we have a matrix that we want to reduce to row echelon form. It would end up looking something like this:
+\newline
+\[
+\begin{bmatrix}
+* & * & * & * & * & * \\
+0 & * & * & * & * & * \\
+0 & 0 & * & * & * & * \\
+0 & 0 & 0 & * & * & * \\
+0 & 0 & 0 & 0 & * & * 
+\end{bmatrix}
+\]
+\newline
+\newline
+It is important to note that this proof is for the \emph{maximum} number of FLOPS: i.e. the worst case scenario where none of the entries conveniently switch to zeroes as we perform the row operations. 
+\newline
+Let $A$ be some $n\times(n+1)$ matrix such as the one represented above. Let  
+\[i=1,\ldots,n-1\] 
+\[r=i+1,\ldots,n\] 
+\newline
+where $i$ is the iteration over $n-1$ rows and $r$ is the operating row in step $i$.
+\pagebreak
+\newline
+{\large{\bf{FLOPS}}}
+\newline
+\newline
+The FLOPS we have to perform are:
+\begin{enumerate}
+  \item Divide $A_{i,r}$ by $A_{i,i}$ to get a ratio ($1$ FLOP). Since we know performing the row operation with this ratio will make the first entry $0$, we can switch the $A_{i,r}$ entry to $0$. 
+  \item Multiply by the ratio and add/subtract downward to row $r$ for each column ($2(n+1-i)$ FLOPS).
+  \item Do this over $n-i$ rows.
+\end{enumerate} 
+for a total of $(n-i)[1+2(n+1-i)]$ FLOPS. Now to find how many total FLOPS this will be, we can set up a sum for rows $1$ through $n-1$ and simplify it:
+\begin{align*}
+\sum_{i=1}^{n-1}(n-i)[1+2(n+1-i)]&=\sum_{i=1}^{n-1}(2n^2-2in+3n-2in+2i^2-3i) \\
+&=(n-1)(2n^2+3n)+\sum_{i=1}^{n-1}(2i^2-4in-3i) \\
+&=2n^3+n^2-3n+2\sum_{i=1}^{n-1}i^2-(4n+3)\sum_{i=1}^{n-1}i \\
+\begin{split}
+&=2n^3+n^2-3n+2(\sum_{i=1}^{n}i^2-n^2) \\
+&\qquad-(4n+3)(\sum_{i=1}^{n}i-n) \\
+&=2n^3+n^2-3n+2(\frac{1}{6}n+\frac{1}{2}n^2+\frac{1}{3}n^3-n^2) \\
+&\qquad-(4n+3)(\frac{1}{2}n+\frac{1}{2}n^2-n) \\
+&=2n^3+n^2-3n+\frac{2}{3}n^3-n^2+\frac{1}{3}n-2n^3 \\
+&\qquad+2n^2-\frac{3}{2}n^2+\frac{3}{2}n
+\end{split} \\
+&=\frac{2}{3}n^3+\frac{1}{2}n^2-\frac{7}{6}n
+\end{align*}
+\newline
+This proves the statement made in the textbook, which shows the maximum number of operations to reduce this matrix to row echelon form. Using shortcuts, this is the most optimized solution to the problem, such as the one given by the textbook. With Faulhaber's Formula, the sums were reduced to terms of $n$, yielding the final answer consistent with the book.  
+\newline
+\pagebreak
+\newline
+{\Large{\bf{Reduced Row Echelon Form}}}
+\newline
+\newline
+The book also made a statement about the maximum number of FLOPS for reduced form to be $n^2$. The reduced row echelon form matrix has the form:
+\newline
+\[
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 & * \\
+0 & 1 & 0 & 0 & 0 & * \\
+0 & 0 & 1 & 0 & 0 & * \\
+0 & 0 & 0 & 1 & 0 & * \\
+0 & 0 & 0 & 0 & 1 & * 
+\end{bmatrix}
+\]
+\newline
+\newline
+Again, we'll define some iterative variables. Let
+\[i=n,\ldots,1\] 
+\[r=1,\ldots,(n-1)-i\] 
+\newline
+where $i$ is the iteration over $n$ rows and $r$ is the all the operating rows (above the current row) where entries will be turned to $0$. 
+\newline
+\newline
+{\large{\bf{FLOPS}}}
+\newline
+\newline
+The FLOPS we have to perform are:
+\begin{enumerate}
+  \item Divide $A_{i,n+1}$ by $A_{i,i}$ and normalize the $A_{i,i}$ entry to 1. Since we know performing the row operation with this ratio will make the first entry $1$, we can switch the $A_{i,i}$ entry to $1$ without performing another FLOP. 
+  \item Multiply by the ratio and add/subtract upward through $r$ ($2(i-1)$ FLOPS) to make the entries above the pivot $0$.
+\end{enumerate} 
+for a total of $1+2(i-1)$ FLOPS. To find how many total FLOPS this will take, we can again set up a sum for rows $1$ through $n$ and simplify it:
+\begin{align*}
+\sum_{i=1}^{n}(1+2(i-1)&=\sum_{i=1}^{n}(2i-1) \\
+&=2\sum_{i=1}^{n}i-\sum_{i=1}^{n}1 \\
+&=2(\frac{1}{2}n+\frac{1}{2}n^2)-n \\
+&=n+n^2-n \\
+&=n^2
+\end{align*}
+\newline
+This proves the assertion in the textbook for the maximum FLOPS of RREF operations. The sum showed that the worst case scenario would require $n^2$ FLOPS.
+\end{document}
